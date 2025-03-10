@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/screens/total_revenue_screen.dart';
 import 'package:mobile_app/screens/welcome_screen.dart';
 
 void main() {
@@ -11,6 +12,6 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(title: 'Flutter Demo', home: WelcomeScreen());
+    return MaterialApp(title: 'Flutter Demo', home: DashboardScreen());
   }
 }
