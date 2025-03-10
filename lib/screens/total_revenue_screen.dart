@@ -49,16 +49,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'Chi nhánh Nha Trang',
     ];
 
-    branches = branchNames.map((name) {
+    final branchAddresses = [
+      '285 Đội Cấn, Ba Đình, Hà Nội',
+      '76 Lê Lai, Quận 1, Hồ Chí Minh',
+      '58 Bạch Đằng, Hải Châu, Đà Nẵng',
+      '209 Nguyễn Văn Cừ, Ninh Kiều, Cần Thơ',
+      '12 Lạch Tray, Ngô Quyền, Hải Phòng',
+      '20 Trần Phú, Lộc Thọ, Nha Trang',
+    ];
+
+    branches = List.generate(branchNames.length, (index) {
       return {
-        'name': name,
+        'name': branchNames[index],
+        'address': branchAddresses[index],
         'revenue': 0.0,
         'percentage': 0.0,
         'color': Color.fromRGBO(Random().nextInt(200) + 55,
             Random().nextInt(200) + 55, Random().nextInt(200) + 55, 1.0),
         'employees': [], // Thêm danh sách nhân viên
       };
-    }).toList();
+    });
   }
 
   // Cập nhật danh sách chi nhánh
@@ -120,6 +130,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       // Ensure employees field exists
       if (updatedBranch['employees'] == null) {
         updatedBranch['employees'] = [];
+      }
+      // Ensure address field exists
+      if (updatedBranch['address'] == null) {
+        updatedBranch['address'] = '';
       }
       updatedBranches.add(updatedBranch);
     }

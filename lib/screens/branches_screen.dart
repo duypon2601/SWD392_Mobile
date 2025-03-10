@@ -6,9 +6,9 @@ import 'employees_screen.dart';
 class BranchesScreen extends StatefulWidget {
   final List<Map<String, dynamic>> branches;
   final Function(List<Map<String, dynamic>>) onBranchesChanged;
-  
+
   const BranchesScreen({
-    Key? key, 
+    Key? key,
     required this.branches,
     required this.onBranchesChanged,
   }) : super(key: key);
@@ -19,9 +19,13 @@ class BranchesScreen extends StatefulWidget {
 
 class _BranchesScreenState extends State<BranchesScreen> {
   late List<Map<String, dynamic>> _branches;
+  late List<Map<String, dynamic>> _filteredBranches;
   final _formKey = GlobalKey<FormState>();
   final _branchNameController = TextEditingController();
-  
+  final _branchAddressController = TextEditingController();
+  final _searchController = TextEditingController();
+  bool _isSearching = false;
+
   @override
   void initState() {
     super.initState();
@@ -32,57 +36,106 @@ class _BranchesScreenState extends State<BranchesScreen> {
       if (newBranch['employees'] == null) {
         newBranch['employees'] = [];
       }
+      // Initialize address if it doesn't exist
+      if (newBranch['address'] == null) {
+        newBranch['address'] = '';
+      }
       return newBranch;
     }).toList();
+
+    _filteredBranches = List.from(_branches);
+
+    _searchController.addListener(_filterBranches);
   }
-  
+
   @override
   void dispose() {
     _branchNameController.dispose();
+    _branchAddressController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
-  
+
+  // Filter branches based on search text
+  void _filterBranches() {
+    final query = _searchController.text.toLowerCase();
+
+    setState(() {
+      if (query.isEmpty) {
+        _filteredBranches = List.from(_branches);
+      } else {
+        _filteredBranches = _branches.where((branch) {
+          final name = branch['name'].toString().toLowerCase();
+          final address = (branch['address'] ?? '').toString().toLowerCase();
+          return name.contains(query) || address.contains(query);
+        }).toList();
+      }
+    });
+  }
+
+  // Toggle search mode
+  void _toggleSearch() {
+    setState(() {
+      _isSearching = !_isSearching;
+      if (!_isSearching) {
+        _searchController.clear();
+      }
+    });
+  }
+
   // Generate a random color for new branches
   Color _generateRandomColor() {
     final random = Random();
-    return Color.fromRGBO(
-      random.nextInt(200) + 55, 
-      random.nextInt(200) + 55, 
-      random.nextInt(200) + 55, 
-      1.0
-    );
+    return Color.fromRGBO(random.nextInt(200) + 55, random.nextInt(200) + 55,
+        random.nextInt(200) + 55, 1.0);
   }
-  
+
   // Thêm một chi nhánh mới
   void _addBranch() {
+    _branchNameController.clear();
+    _branchAddressController.clear();
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Thêm chi nhánh mới'),
         content: Form(
           key: _formKey,
-          child: TextFormField(
-            controller: _branchNameController,
-            decoration: InputDecoration(
-              labelText: 'Tên chi nhánh',
-              border: OutlineInputBorder(),
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Vui lòng nhập tên chi nhánh';
-              }
-              if (_branches.any((branch) => branch['name'] == value)) {
-                return 'Chi nhánh này đã tồn tại';
-              }
-              return null;
-            },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: _branchNameController,
+                decoration: InputDecoration(
+                  labelText: 'Tên chi nhánh',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Vui lòng nhập tên chi nhánh';
+                  }
+                  if (_branches.any((branch) => branch['name'] == value)) {
+                    return 'Chi nhánh này đã tồn tại';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 16),
+              TextFormField(
+                controller: _branchAddressController,
+                decoration: InputDecoration(
+                  labelText: 'Địa chỉ chi nhánh',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 2,
+              ),
+            ],
           ),
         ),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              _branchNameController.clear();
             },
             child: Text('Hủy'),
           ),
@@ -92,18 +145,21 @@ class _BranchesScreenState extends State<BranchesScreen> {
                 setState(() {
                   _branches.add({
                     'name': _branchNameController.text,
+                    'address': _branchAddressController.text,
                     'revenue': 0.0,
                     'percentage': 0.0,
                     'color': _generateRandomColor(),
                     'employees': [], // Khởi tạo danh sách nhân viên rỗng
                   });
-                  
+
+                  // Update filtered list
+                  _filterBranches();
+
                   // Update parent state
                   widget.onBranchesChanged(_branches);
                 });
-                
+
                 Navigator.of(context).pop();
-                _branchNameController.clear();
               }
             },
             child: Text('Thêm'),
@@ -112,18 +168,22 @@ class _BranchesScreenState extends State<BranchesScreen> {
       ),
     );
   }
-  
+
   // Quản lý nhân viên của chi nhánh
   void _manageBranchEmployees(int index) {
+    final originalIndex = _branches.indexOf(_filteredBranches[index]);
+    if (originalIndex < 0) return;
+
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => EmployeesScreen(
-          branch: _branches[index],
+          branch: _branches[originalIndex],
           onBranchChanged: (updatedBranch) {
             setState(() {
-              _branches[index] = updatedBranch;
-              
+              _branches[originalIndex] = updatedBranch;
+              _filterBranches();
+
               // Update parent state
               widget.onBranchesChanged(_branches);
             });
@@ -132,50 +192,71 @@ class _BranchesScreenState extends State<BranchesScreen> {
       ),
     );
   }
-  
+
   // Đổi màu chi nhánh
   void _changeBranchColor(int index) {
+    final originalIndex = _branches.indexOf(_filteredBranches[index]);
+    if (originalIndex < 0) return;
+
     setState(() {
-      _branches[index]['color'] = _generateRandomColor();
-      
+      _branches[originalIndex]['color'] = _generateRandomColor();
+      _filteredBranches[index]['color'] = _branches[originalIndex]['color'];
+
       // Update parent state
       widget.onBranchesChanged(_branches);
     });
   }
-  
+
   // Sửa chi nhánh đã tồn tại
   void _editBranch(int index) {
-    _branchNameController.text = _branches[index]['name'];
-    
+    final originalIndex = _branches.indexOf(_filteredBranches[index]);
+    if (originalIndex < 0) return;
+
+    _branchNameController.text = _branches[originalIndex]['name'];
+    _branchAddressController.text = _branches[originalIndex]['address'] ?? '';
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Sửa chi nhánh'),
         content: Form(
           key: _formKey,
-          child: TextFormField(
-            controller: _branchNameController,
-            decoration: InputDecoration(
-              labelText: 'Tên chi nhánh',
-              border: OutlineInputBorder(),
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Vui lòng nhập tên chi nhánh';
-              }
-              if (value != _branches[index]['name'] && 
-                  _branches.any((branch) => branch['name'] == value)) {
-                return 'Chi nhánh này đã tồn tại';
-              }
-              return null;
-            },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: _branchNameController,
+                decoration: InputDecoration(
+                  labelText: 'Tên chi nhánh',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Vui lòng nhập tên chi nhánh';
+                  }
+                  if (value != _branches[originalIndex]['name'] &&
+                      _branches.any((branch) => branch['name'] == value)) {
+                    return 'Chi nhánh này đã tồn tại';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 16),
+              TextFormField(
+                controller: _branchAddressController,
+                decoration: InputDecoration(
+                  labelText: 'Địa chỉ chi nhánh',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 2,
+              ),
+            ],
           ),
         ),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              _branchNameController.clear();
             },
             child: Text('Hủy'),
           ),
@@ -183,14 +264,18 @@ class _BranchesScreenState extends State<BranchesScreen> {
             onPressed: () {
               if (_formKey.currentState!.validate()) {
                 setState(() {
-                  _branches[index]['name'] = _branchNameController.text;
-                  
+                  _branches[originalIndex]['name'] = _branchNameController.text;
+                  _branches[originalIndex]['address'] =
+                      _branchAddressController.text;
+
+                  // Update filtered items
+                  _filterBranches();
+
                   // Update parent state
                   widget.onBranchesChanged(_branches);
                 });
-                
+
                 Navigator.of(context).pop();
-                _branchNameController.clear();
               }
             },
             child: Text('Lưu'),
@@ -199,14 +284,18 @@ class _BranchesScreenState extends State<BranchesScreen> {
       ),
     );
   }
-  
+
   // Xóa chi nhánh
   void _deleteBranch(int index) {
+    final originalIndex = _branches.indexOf(_filteredBranches[index]);
+    if (originalIndex < 0) return;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Xóa chi nhánh'),
-        content: Text('Bạn có chắc chắn muốn xóa chi nhánh "${_branches[index]['name']}"?'),
+        content: Text(
+            'Bạn có chắc chắn muốn xóa chi nhánh "${_branches[originalIndex]['name']}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -218,8 +307,9 @@ class _BranchesScreenState extends State<BranchesScreen> {
             ),
             onPressed: () {
               setState(() {
-                _branches.removeAt(index);
-                
+                _branches.removeAt(originalIndex);
+                _filterBranches();
+
                 // Update parent state
                 widget.onBranchesChanged(_branches);
               });
@@ -234,27 +324,84 @@ class _BranchesScreenState extends State<BranchesScreen> {
       ),
     );
   }
-  
+
   // Format currency (copied from dashboard_screen.dart)
   String _formatCurrency(double amount) {
     final formatter = NumberFormat('#,###', 'vi_VN');
     return formatter.format(amount) + ' VND';
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Quản lý chi nhánh'),
+        leading: _isSearching
+            ? IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: _toggleSearch,
+              )
+            : null,
+        title: _isSearching
+            ? Container(
+                height: 40,
+                alignment: Alignment.center,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(Icons.search, color: Colors.grey[600], size: 20),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          hintText: 'Tìm chi nhánh...',
+                          hintStyle: TextStyle(color: Colors.grey[600]),
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: EdgeInsets.symmetric(vertical: 8),
+                        ),
+                        style: TextStyle(color: Colors.black),
+                        cursorColor: Colors.blue,
+                        autofocus: true,
+                      ),
+                    ),
+                    if (_searchController.text.isNotEmpty)
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _searchController.clear();
+                            _filterBranches();
+                          });
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Icon(Icons.clear,
+                              color: Colors.grey[600], size: 20),
+                        ),
+                      ),
+                  ],
+                ),
+              )
+            : Text('Quản lý chi nhánh'),
         actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: _addBranch,
-            tooltip: 'Thêm chi nhánh mới',
-          ),
+          if (!_isSearching)
+            IconButton(
+              icon: Icon(Icons.search),
+              onPressed: _toggleSearch,
+              tooltip: 'Tìm kiếm',
+            ),
+          if (!_isSearching)
+            IconButton(
+              icon: Icon(Icons.add),
+              onPressed: _addBranch,
+              tooltip: 'Thêm chi nhánh mới',
+            ),
         ],
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 1,
       ),
-      body: _branches.isEmpty
+      body: _filteredBranches.isEmpty
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -266,38 +413,43 @@ class _BranchesScreenState extends State<BranchesScreen> {
                   ),
                   SizedBox(height: 16),
                   Text(
-                    'Chưa có chi nhánh nào',
+                    _isSearching && _searchController.text.isNotEmpty
+                        ? 'Không tìm thấy chi nhánh phù hợp'
+                        : 'Chưa có chi nhánh nào',
                     style: TextStyle(
                       fontSize: 18,
                       color: Colors.grey[600],
                     ),
                   ),
                   SizedBox(height: 24),
-                  ElevatedButton.icon(
-                    onPressed: _addBranch,
-                    icon: Icon(Icons.add),
-                    label: Text('Thêm chi nhánh mới'),
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  if (!_isSearching || _searchController.text.isEmpty)
+                    ElevatedButton.icon(
+                      onPressed: _addBranch,
+                      icon: Icon(Icons.add),
+                      label: Text('Thêm chi nhánh mới'),
+                      style: ElevatedButton.styleFrom(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      ),
                     ),
-                  ),
                 ],
               ),
             )
           : ListView.builder(
               padding: EdgeInsets.all(16),
-              itemCount: _branches.length,
+              itemCount: _filteredBranches.length,
               itemBuilder: (context, index) {
-                final branch = _branches[index];
+                final branch = _filteredBranches[index];
                 // Handle null employees with null safety
                 final List<dynamic> employees = branch['employees'] ?? [];
                 final employeeCount = employees.length;
-                
+
                 return Card(
                   margin: EdgeInsets.only(bottom: 16),
                   elevation: 2,
                   child: ListTile(
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     leading: GestureDetector(
                       onTap: () => _changeBranchColor(index),
                       child: Container(
@@ -327,7 +479,30 @@ class _BranchesScreenState extends State<BranchesScreen> {
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        branch['revenue'] > 0 
+                        if (branch['address'] != null &&
+                            branch['address'].toString().isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 4.0),
+                            child: Row(
+                              children: [
+                                Icon(Icons.location_on,
+                                    size: 14, color: Colors.grey[600]),
+                                SizedBox(width: 4),
+                                Expanded(
+                                  child: Text(
+                                    branch['address'],
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey[700],
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        branch['revenue'] > 0
                             ? Text(
                                 'Doanh thu: ${_formatCurrency(branch['revenue'] as double)}\n'
                                 'Phần trăm: ${(branch['percentage'] as double).toStringAsFixed(1)}%',
@@ -368,12 +543,14 @@ class _BranchesScreenState extends State<BranchesScreen> {
                 );
               },
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addBranch,
-        backgroundColor: Colors.blue,
-        child: Icon(Icons.add),
-        tooltip: 'Thêm chi nhánh mới',
-      ),
+      floatingActionButton: _isSearching
+          ? null
+          : FloatingActionButton(
+              onPressed: _addBranch,
+              backgroundColor: Colors.blue,
+              child: Icon(Icons.add),
+              tooltip: 'Thêm chi nhánh mới',
+            ),
     );
   }
 }
