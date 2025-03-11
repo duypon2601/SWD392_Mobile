@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:math';
 import 'employees_screen.dart';
+import 'branch_details_screen.dart';
 
 class BranchesScreen extends StatefulWidget {
   final List<Map<String, dynamic>> branches;
@@ -165,6 +166,30 @@ class _BranchesScreenState extends State<BranchesScreen> {
             child: Text('Thêm'),
           ),
         ],
+      ),
+    );
+  }
+
+  // Mở màn hình chi tiết chi nhánh
+  void _openBranchDetails(int index) {
+    final originalIndex = _branches.indexOf(_filteredBranches[index]);
+    if (originalIndex < 0) return;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BranchDetailsScreen(
+          branch: _branches[originalIndex],
+          onBranchChanged: (updatedBranch) {
+            setState(() {
+              _branches[originalIndex] = updatedBranch;
+              _filterBranches();
+
+              // Update parent state
+              widget.onBranchesChanged(_branches);
+            });
+          },
+        ),
       ),
     );
   }
@@ -538,7 +563,7 @@ class _BranchesScreenState extends State<BranchesScreen> {
                         ),
                       ],
                     ),
-                    onTap: () => _manageBranchEmployees(index),
+                    onTap: () => _openBranchDetails(index),
                   ),
                 );
               },
