@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import '../API/api_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -17,6 +18,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   String errorMail = '';
   String errorPassword = '';
+  String errorMessage = '';
+
+  // Create instance of ApiService
+  final ApiService _apiService = ApiService();
 
   bool isValidEmail() {
     String emailString = emailController.text;
@@ -68,20 +73,52 @@ class _LoginScreenState extends State<LoginScreen> {
     return validEmail && validPassword;
   }
 
-  void login() {
+  void login() async {
+    // Clear any previous error message
+    setState(() {
+      errorMessage = '';
+    });
+
     bool isValid = validateForm();
     if (isValid) {
       setState(() {
         isLoading = true;
       });
 
-      Future.delayed(const Duration(seconds: 2)).then((_) {
+      try {
+        // Call API Service for login
+        final loginResponse = await _apiService.login(
+          emailController.text.trim(),
+          passwordController.text.trim(),
+        );
+
+        // Store token for future API calls
+        await _apiService.storeToken(loginResponse.data.token);
+
+        // Show success message
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Đăng nhập thành công!')),
+          );
+
+          // Navigate to home or dashboard
+          // Navigator.of(context).pushReplacementNamed('/home');
+        }
+      } catch (e) {
+        // Show error message
         setState(() {
-          isLoading = false;
+          errorMessage = e.toString().contains('Exception:')
+              ? e.toString().split('Exception:')[1].trim()
+              : 'Đăng nhập thất bại. Vui lòng thử lại sau.';
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Đăng nhập thành công!')));
-      });
+      } finally {
+        // Set loading to false if component is still mounted
+        if (mounted) {
+          setState(() {
+            isLoading = false;
+          });
+        }
+      }
     }
   }
 
@@ -137,6 +174,24 @@ class _LoginScreenState extends State<LoginScreen> {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 50),
+
+                    // Error message from API
+                    if (errorMessage.isNotEmpty)
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        margin: const EdgeInsets.only(bottom: 20),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                          border:
+                              Border.all(color: Colors.red.withOpacity(0.5)),
+                        ),
+                        child: Text(
+                          errorMessage,
+                          style: const TextStyle(color: Colors.red),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
 
                     // Email Field
                     TextField(

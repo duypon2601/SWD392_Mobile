@@ -32,6 +32,15 @@ dependencies:
     sdk: flutter
   fl_chart: ^0.65.0
   intl: ^0.17.0
+  
+  # Added HTTP package for API requests
+  http: ^1.1.0
+  
+  # Added secure storage for token management
+  flutter_secure_storage: ^8.0.0
+  
+  # Added for state management (optional but recommended)
+  provider: ^6.0.5
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -88,3 +97,4 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+  
