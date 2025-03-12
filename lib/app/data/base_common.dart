@@ -17,9 +17,9 @@ class BaseCommon {
   Map<String, String> headerRequest({bool isUsingToken = true}) {
     if (isUsingToken) {
       return {
-        'Content-Type': 'application/json;',
-        'Accept': '*/*',
-        'Authorization': 'Bearer $accessToken'
+        'Content-Type': 'application/json;  charset=UTF-8',
+        'Accept': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer ${account!.token}'
       };
     }
     return {

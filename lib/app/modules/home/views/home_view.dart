@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hotpot/app/model/restaurant.dart';
 import 'package:hotpot/app/routes/app_pages.dart';
 import 'package:hotpot/resources/color_manager.dart';
 import 'package:hotpot/resources/reponsive_utils.dart';
@@ -75,16 +76,26 @@ class HomeView extends GetView<HomeController> {
                     ],
                   ),
                   SizedBoxConst.size(context: context),
-                  ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: 3,
-                    separatorBuilder: (context, index) =>
-                        SizedBoxConst.size(context: context),
-                    itemBuilder: (context, index) => GestureDetector(
-                        onTap: () {
-                          Get.toNamed(Routes.RESTAURANT_DETAIL);
-                        },
-                        child: _itemRestaurant(context)),
+                  Obx(
+                    () => controller.isLoading.value
+                        ? const CircularProgressIndicator()
+                        : ListView.separated(
+                            shrinkWrap: true,
+                            itemCount:
+                                (controller.listRestaurant.value.length > 3
+                                    ? 3
+                                    : controller.listRestaurant.value.length),
+                            separatorBuilder: (context, index) =>
+                                SizedBoxConst.size(context: context),
+                            itemBuilder: (context, index) => GestureDetector(
+                                onTap: () {
+                                  Get.toNamed(Routes.RESTAURANT_DETAIL,
+                                      arguments: controller
+                                          .listRestaurant.value[index]);
+                                },
+                                child: _itemRestaurant(context,
+                                    controller.listRestaurant.value[index])),
+                          ),
                   )
                 ],
               ),
@@ -93,7 +104,7 @@ class HomeView extends GetView<HomeController> {
         ));
   }
 
-  Container _itemRestaurant(BuildContext context) {
+  Container _itemRestaurant(BuildContext context, Restaurant item) {
     return Container(
       padding: EdgeInsets.all(UtilsReponsive.height(10, context)),
       decoration: UtilCommon.shadowBox(context,
@@ -113,11 +124,20 @@ class HomeView extends GetView<HomeController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextConstant.subTile2(context,
-                  color: Colors.white, text: 'Nhà hàng'),
-              TextConstant.content(context,
-                  color: Colors.white,
-                  text: 'Nguyễn Tri Phương, Quận 1, TP.HCM'),
-              SizedBoxConst.size(context: context),
+                  color: Colors.white, text: '${item.name}'),
+              SizedBoxConst.size(context: context, size: 5),
+              Row(
+                children: [
+                  const Icon(
+                    Icons.location_on,
+                    color: Colors.white,
+                    size: 14,
+                  ),
+                  TextConstant.content(context,
+                      color: Colors.white, text: '${item.location}'),
+                ],
+              ),
+              SizedBoxConst.size(context: context, size: 5),
               _rowText(context,
                   text1: 'Doanh thu', text2: UtilCommon.formatMoney(100000000)),
             ],

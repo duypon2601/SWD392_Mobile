@@ -14,16 +14,22 @@ class CreateRestaurantView extends GetView<CreateRestaurantController> {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: ColorsManager.primary,
-          title: TextConstant.titleH2(context,
-              text: 'Chi tiết',
-              fontWeight: FontWeight.w500,
-              color: Colors.white),
+          title: Obx(
+            () => TextConstant.titleH2(context,
+                text: controller.restaurantView.value.restaurantId != null
+                    ? 'Chi tiết'
+                    : "Tạo mới",
+                fontWeight: FontWeight.w500,
+                color: Colors.white),
+          ),
           centerTitle: true,
-          actions: const [
-            Icon(
-              Icons.remove_circle_outlined,
-              color: Colors.white,
-            )
+          actions: [
+            controller.restaurantView.value.restaurantId != null
+                ? const Icon(
+                    Icons.remove_circle_outlined,
+                    color: Colors.white,
+                  )
+                : const SizedBox()
           ],
         ),
         body: Stack(
@@ -60,14 +66,16 @@ class CreateRestaurantView extends GetView<CreateRestaurantController> {
                     borderColor: Colors.grey,
                     focusColor: ColorsManager.primary,
                     setValueFunc: (v) {},
-                    controllerEditting: controller.nameController,
+                    controllerEditting: controller.locationController,
                   ),
                   SizedBoxConst.size(context: context),
                   Center(
                     child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                             backgroundColor: ColorsManager.primary),
-                        onPressed: () {},
+                        onPressed: () {
+                          controller.onTapAction();
+                        },
                         child: TextConstant.subTile1(context,
                             text: 'Cập nhật', color: Colors.white)),
                   )

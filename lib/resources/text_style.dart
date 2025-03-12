@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hotpot/resources/reponsive_utils.dart';
 
+
 class TextConstant {
   static Text titleH1(BuildContext context,
       {required String text,

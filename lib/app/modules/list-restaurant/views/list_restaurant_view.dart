@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hotpot/app/model/restaurant.dart';
 import 'package:hotpot/app/routes/app_pages.dart';
 import 'package:hotpot/resources/color_manager.dart';
 import 'package:hotpot/resources/reponsive_utils.dart';
@@ -23,7 +25,7 @@ class ListRestaurantView extends GetView<ListRestaurantController> {
           actions: [
             GestureDetector(
               onTap: () {
-                Get.toNamed(Routes.CREATE_RESTAURANT);
+                Get.toNamed(Routes.CREATE_RESTAURANT, arguments: Restaurant());
               },
               child: const Icon(
                 Icons.add,
@@ -37,23 +39,34 @@ class ListRestaurantView extends GetView<ListRestaurantController> {
             Align(
                 alignment: Alignment.bottomCenter,
                 child: Image.asset('assets/moon.png')),
-            ListView.separated(
-              padding: EdgeInsets.all(UtilsReponsive.height(15, context)),
-              shrinkWrap: true,
-              itemCount: 10,
-              separatorBuilder: (context, index) =>
-                  SizedBoxConst.size(context: context),
-              itemBuilder: (context, index) => GestureDetector(
-                  onTap: () {
-                    Get.toNamed(Routes.RESTAURANT_DETAIL);
-                  },
-                  child: _itemRestaurant(context)),
+            Obx(
+              () => controller.isLoading.value
+                  ? Center(
+                      child: CupertinoActivityIndicator(
+                        color: ColorsManager.primary,
+                      ),
+                    )
+                  : ListView.separated(
+                      padding:
+                          EdgeInsets.all(UtilsReponsive.height(15, context)),
+                      shrinkWrap: true,
+                      itemCount: controller.listRestaurant.value.length,
+                      separatorBuilder: (context, index) =>
+                          SizedBoxConst.size(context: context),
+                      itemBuilder: (context, index) => GestureDetector(
+                          onTap: () {
+                            Get.toNamed(Routes.RESTAURANT_DETAIL,
+                                arguments: controller.listRestaurant[index]);
+                          },
+                          child: _itemRestaurant(
+                              context, controller.listRestaurant[index])),
+                    ),
             ),
           ],
         ));
   }
 
-  Container _itemRestaurant(BuildContext context) {
+  Container _itemRestaurant(BuildContext context, Restaurant item) {
     return Container(
       padding: EdgeInsets.all(UtilsReponsive.height(10, context)),
       decoration: UtilCommon.shadowBox(context,
@@ -73,11 +86,20 @@ class ListRestaurantView extends GetView<ListRestaurantController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextConstant.subTile2(context,
-                  color: Colors.white, text: 'Nhà hàng'),
-              TextConstant.content(context,
-                  color: Colors.white,
-                  text: 'Nguyễn Tri Phương, Quận 1, TP.HCM'),
-              SizedBoxConst.size(context: context),
+                  color: Colors.white, text: '${item.name}'),
+              SizedBoxConst.size(context: context, size: 5),
+              Row(
+                children: [
+                  const Icon(
+                    Icons.location_on,
+                    color: Colors.white,
+                    size: 14,
+                  ),
+                  TextConstant.content(context,
+                      color: Colors.white, text: '${item.location}'),
+                ],
+              ),
+              SizedBoxConst.size(context: context, size: 5),
               _rowText(context,
                   text1: 'Doanh thu', text2: UtilCommon.formatMoney(100000000)),
             ],
