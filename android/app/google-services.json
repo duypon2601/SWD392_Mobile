@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1078573695517",
+    "project_id": "moon-hotpot-a6a0e",
+    "storage_bucket": "moon-hotpot-a6a0e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1078573695517:android:8a98d5e9084222c5fdfcf4",
+        "android_client_info": {
+          "package_name": "com.example.mobile_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATe_PrcEj0lVbGFS0f9OH1KqBhoUmJnzY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
