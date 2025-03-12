@@ -6,19 +6,19 @@ import 'package:flutter/foundation.dart';
 import '../Model/user_model.dart';
 
 class ApiService {
-  static const String baseUrl = "http://localhost:8080/api";
+  static const String baseUrl = "http://10.0.2.2:8080/api";
 
   // Singleton pattern
   static final ApiService _instance = ApiService._internal();
-  
+
   factory ApiService() {
     return _instance;
   }
-  
+
   ApiService._internal();
 
   // Login API call
-  Future<LoginResponse> login(String email, String password) async {
+  Future<LoginResponse> login(String username, String password) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/login'),
@@ -26,7 +26,7 @@ class ApiService {
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          'email': email,
+          'username': username,
           'password': password,
         }),
       );
@@ -42,10 +42,10 @@ class ApiService {
         return LoginResponse.fromJson(jsonResponse);
       } else {
         // Handle error cases
-        final errorMessage = response.statusCode == 400 
-            ? 'Invalid credentials' 
+        final errorMessage = response.statusCode == 400
+            ? 'Invalid credentials'
             : 'Login failed. Please try again.';
-        
+
         throw Exception(errorMessage);
       }
     } catch (e) {

@@ -13,35 +13,28 @@ class _LoginScreenState extends State<LoginScreen> {
   bool isHidePassword = true;
   bool isLoading = false;
 
-  final TextEditingController emailController = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  String errorMail = '';
+  String errorUsername = '';
   String errorPassword = '';
   String errorMessage = '';
 
   // Create instance of ApiService
   final ApiService _apiService = ApiService();
 
-  bool isValidEmail() {
-    String emailString = emailController.text;
-    final emailRegex =
-        RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+  bool isValidUsername() {
+    String usernameString = usernameController.text;
 
-    if (emailString.isEmpty) {
+    if (usernameString.isEmpty) {
       setState(() {
-        errorMail = 'Email không được để trống';
-      });
-      return false;
-    } else if (!emailRegex.hasMatch(emailString)) {
-      setState(() {
-        errorMail = 'Email không hợp lệ';
+        errorUsername = 'Tên đăng nhập không được để trống';
       });
       return false;
     }
 
     setState(() {
-      errorMail = '';
+      errorUsername = '';
     });
     return true;
   }
@@ -54,9 +47,9 @@ class _LoginScreenState extends State<LoginScreen> {
         errorPassword = 'Mật khẩu không được để trống';
       });
       return false;
-    } else if (passwordString.length < 6) {
+    } else if (passwordString.length < 3) {
       setState(() {
-        errorPassword = 'Mật khẩu tối thiểu 6 ký tự';
+        errorPassword = 'Mật khẩu tối thiểu 3 ký tự';
       });
       return false;
     }
@@ -68,9 +61,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   bool validateForm() {
-    bool validEmail = isValidEmail();
+    bool validUsername = isValidUsername();
     bool validPassword = isValidPassword();
-    return validEmail && validPassword;
+    return validUsername && validPassword;
   }
 
   void login() async {
@@ -88,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
       try {
         // Call API Service for login
         final loginResponse = await _apiService.login(
-          emailController.text.trim(),
+          usernameController.text.trim(),
           passwordController.text.trim(),
         );
 
@@ -101,8 +94,8 @@ class _LoginScreenState extends State<LoginScreen> {
             const SnackBar(content: Text('Đăng nhập thành công!')),
           );
 
-          // Navigate to home or dashboard
-          // Navigator.of(context).pushReplacementNamed('/home');
+          // Navigate to dashboard
+          Navigator.of(context).pushReplacementNamed('/dashboard');
         }
       } catch (e) {
         // Show error message
@@ -193,13 +186,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
 
-                    // Email Field
+                    // Username Field
                     TextField(
-                      controller: emailController,
+                      controller: usernameController,
                       decoration: InputDecoration(
-                        hintText: 'Email',
+                        hintText: 'Username',
                         hintStyle: const TextStyle(color: Colors.grey),
-                        errorText: errorMail.isNotEmpty ? errorMail : null,
+                        errorText:
+                            errorUsername.isNotEmpty ? errorUsername : null,
                         errorStyle: const TextStyle(color: Colors.red),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
@@ -210,11 +204,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         contentPadding: const EdgeInsets.symmetric(
                             horizontal: 20, vertical: 16),
                       ),
-                      keyboardType: TextInputType.emailAddress,
+                      keyboardType: TextInputType.text,
                       onChanged: (_) {
-                        if (errorMail.isNotEmpty) {
+                        if (errorUsername.isNotEmpty) {
                           setState(() {
-                            errorMail = '';
+                            errorUsername = '';
                           });
                         }
                       },
