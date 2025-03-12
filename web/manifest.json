@@ -1,6 +1,6 @@
 {
-    "name": "abc",
-    "short_name": "abc",
+    "name": "hotpot",
+    "short_name": "hotpot",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
