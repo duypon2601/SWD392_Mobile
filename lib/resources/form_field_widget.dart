@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hotpot/resources/color_manager.dart';
 import 'package:hotpot/resources/reponsive_utils.dart';
 
-
-// ignore: must_be_immutable
+// Enhanced FormFieldWidget with prefix icon support
 class FormFieldWidget extends StatelessWidget {
-  FormFieldWidget(
-      {super.key,
+  FormFieldWidget({
+      super.key,
       this.focusNode,
       this.icon,
       this.errorText = "",
@@ -19,6 +19,7 @@ class FormFieldWidget extends StatelessWidget {
       this.initValue,
       this.padding = 0,
       this.suffixIcon,
+      this.prefixIcon,
       this.enableInteractiveSelection = true,
       this.styleInput = const TextStyle(color: Colors.black),
       this.radiusBorder = 0,
@@ -30,9 +31,11 @@ class FormFieldWidget extends StatelessWidget {
       this.isCenter = false,
       this.focusColor,
       this.listFormat});
+      
   final FocusNode? focusNode;
   final Icon? icon;
   final Widget? suffixIcon;
+  final Widget? prefixIcon;
   String? errorText;
   final String? labelText;
   final TextEditingController? controllerEditting;
@@ -59,7 +62,7 @@ class FormFieldWidget extends StatelessWidget {
     return TextFormField(
       inputFormatters: listFormat,
       textDirection: directLTR ? TextDirection.ltr : TextDirection.rtl,
-      cursorColor: Colors.black,
+      cursorColor: ColorsManager.primary,
       textAlign: isCenter ? TextAlign.center : TextAlign.start,
       style: styleInput,
       enableInteractiveSelection: enableInteractiveSelection,
@@ -70,7 +73,7 @@ class FormFieldWidget extends StatelessWidget {
       decoration: InputDecoration(
         labelStyle: TextStyle(
             color: borderColor,
-            fontSize: UtilsReponsive.formatFontSize(18, context)),
+            fontSize: UtilsReponsive.formatFontSize(14, context)),
         fillColor: fillColor,
         filled: true,
         contentPadding: EdgeInsets.symmetric(
@@ -80,7 +83,10 @@ class FormFieldWidget extends StatelessWidget {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(
               UtilsReponsive.height(radiusBorder ?? 20, context)),
-          borderSide: BorderSide(color: focusColor ?? borderColor, width: 2),
+          borderSide: BorderSide(
+            color: focusColor ?? ColorsManager.primary, 
+            width: 1.5
+          ),
         ),
         border: OutlineInputBorder(
           borderSide: BorderSide(
@@ -99,11 +105,14 @@ class FormFieldWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(
               UtilsReponsive.height(radiusBorder ?? 20, context)),
         ),
-        // labelText: labelText,
         hintText: labelText,
         hintTextDirection: TextDirection.ltr,
         hintMaxLines: 3,
-        prefixIcon: icon,
+        hintStyle: TextStyle(
+          color: Colors.grey[400],
+          fontSize: UtilsReponsive.formatFontSize(14, context),
+        ),
+        prefixIcon: prefixIcon ?? icon,
         suffixIcon: suffixIcon,
       ),
       keyboardType: textInputType,
