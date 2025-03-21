@@ -17,17 +17,23 @@ class CreateRestaurantView extends GetView<CreateRestaurantController> {
           title: Obx(
             () => TextConstant.titleH2(context,
                 text: controller.restaurantView.value.restaurantId != null
-                    ? 'Chi tiết'
-                    : "Tạo mới",
+                    ? 'Chi tiết nhà hàng'
+                    : "Tạo nhà hàng mới",
                 fontWeight: FontWeight.w500,
                 color: Colors.white),
           ),
           centerTitle: true,
+          elevation: 0,
           actions: [
             controller.restaurantView.value.restaurantId != null
-                ? const Icon(
-                    Icons.remove_circle_outlined,
-                    color: Colors.white,
+                ? IconButton(
+                    icon: const Icon(
+                      Icons.delete_outline,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      _showDeleteConfirmation(context);
+                    },
                   )
                 : const SizedBox()
           ],
@@ -43,46 +49,132 @@ class CreateRestaurantView extends GetView<CreateRestaurantController> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Center(
-                    child: Image.asset(
-                      'assets/restaurant.png',
-                      height: UtilsReponsive.height(80, context),
-                      width: UtilsReponsive.height(80, context),
+                    child: Container(
+                      padding: const EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        color: ColorsManager.primary.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Image.asset(
+                        'assets/restaurant.png',
+                        height: UtilsReponsive.height(80, context),
+                        width: UtilsReponsive.height(80, context),
+                      ),
                     ),
                   ),
-                  TextConstant.subTile3(context, text: 'Tên chi nhánh'),
-                  FormFieldWidget(
-                    radiusBorder: 15,
-                    focusColor: ColorsManager.primary,
-                    borderColor: Colors.grey,
-                    padding: 20,
-                    setValueFunc: (v) {},
-                    controllerEditting: controller.nameController,
+                  SizedBoxConst.size(context: context, size: 30),
+                  _buildFormField(
+                    context,
+                    'Tên nhà hàng',
+                    Icons.restaurant,
+                    controller.nameController,
+                    'Nhập tên nhà hàng',
                   ),
                   SizedBoxConst.size(context: context),
-                  TextConstant.subTile3(context, text: 'Địa chỉ'),
-                  FormFieldWidget(
-                    radiusBorder: 15,
-                    padding: 20,
-                    borderColor: Colors.grey,
-                    focusColor: ColorsManager.primary,
-                    setValueFunc: (v) {},
-                    controllerEditting: controller.locationController,
+                  _buildFormField(
+                    context,
+                    'Địa chỉ',
+                    Icons.location_on,
+                    controller.locationController,
+                    'Nhập địa chỉ nhà hàng',
                   ),
-                  SizedBoxConst.size(context: context),
+                  SizedBoxConst.size(context: context, size: 40),
                   Center(
                     child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                            backgroundColor: ColorsManager.primary),
+                          backgroundColor: ColorsManager.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
                         onPressed: () {
                           controller.onTapAction();
                         },
-                        child: TextConstant.subTile1(context,
-                            text: 'Cập nhật', color: Colors.white)),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              controller.restaurantView.value.restaurantId != null
+                                  ? Icons.save
+                                  : Icons.add_circle,
+                            ),
+                            const SizedBox(width: 8),
+                            TextConstant.subTile1(context,
+                                text: controller.restaurantView.value.restaurantId != null
+                                    ? 'Cập nhật'
+                                    : 'Tạo mới',
+                                color: Colors.white),
+                          ],
+                        )),
                   )
                 ],
               ),
             ),
           ],
         ));
+  }
+
+  Widget _buildFormField(
+    BuildContext context,
+    String label,
+    IconData icon,
+    TextEditingController controller,
+    String hintText,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, color: ColorsManager.primary, size: 18),
+            const SizedBox(width: 8),
+            TextConstant.subTile3(context, text: label, fontWeight: FontWeight.bold),
+          ],
+        ),
+        const SizedBox(height: 8),
+        FormFieldWidget(
+          radiusBorder: 15,
+          focusColor: ColorsManager.primary,
+          borderColor: Colors.grey.shade300,
+          padding: 20,
+          setValueFunc: (v) {},
+          controllerEditting: controller,
+          labelText: hintText,
+        ),
+      ],
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: TextConstant.subTile1(context, text: 'Xác nhận xóa'),
+          content: TextConstant.content(context, 
+            text: 'Bạn có chắc chắn muốn xóa nhà hàng này không?'),
+          actions: [
+            TextButton(
+              child: TextConstant.content(context, text: 'Hủy'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: TextConstant.content(context, 
+                text: 'Xóa', 
+                color: Colors.red),
+              onPressed: () {
+                // TODO: Implement delete restaurant
+                Navigator.of(context).pop();
+                Get.back();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
