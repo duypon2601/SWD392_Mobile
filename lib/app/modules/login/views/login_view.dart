@@ -22,13 +22,11 @@ class LoginView extends GetView<LoginController> {
       child: Stack(
         children: [
           Positioned(
-              top: -(UtilsReponsive.height(50, context)),
-              right: -(UtilsReponsive.height(160, context)),
-              child: Image.asset('assets/moon.png')),
+            top: -(UtilsReponsive.height(50, context)),
+            right: -(UtilsReponsive.height(160, context)),
+            child: Image.asset('assets/moon.png')),
           SingleChildScrollView(
-            padding: EdgeInsets.symmetric(
-                horizontal: UtilsReponsive.height(20, context),
-                vertical: UtilsReponsive.height(180, context)),
+            padding: EdgeInsets.symmetric(horizontal:  UtilsReponsive.height(20, context), vertical: UtilsReponsive.height(180, context)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -44,8 +42,7 @@ class LoginView extends GetView<LoginController> {
                   // height: size.height * 0.5,
                   padding: EdgeInsets.all(size.height * 0.02),
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: Colors.white),
+                      borderRadius: BorderRadius.circular(20), color: Colors.white),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -56,8 +53,7 @@ class LoginView extends GetView<LoginController> {
                           style: TextStyle(
                               fontWeight: FontWeight.w500,
                               color: ColorsManager.primary,
-                              fontSize:
-                                  MediaQuery.of(context).size.height * 0.02)),
+                              fontSize: MediaQuery.of(context).size.height * 0.02)),
                       SizedBox(
                         height: size.height * 0.02,
                       ),
@@ -78,8 +74,7 @@ class LoginView extends GetView<LoginController> {
                           style: TextStyle(
                               color: ColorsManager.primary,
                               fontWeight: FontWeight.w500,
-                              fontSize:
-                                  MediaQuery.of(context).size.height * 0.02)),
+                              fontSize: MediaQuery.of(context).size.height * 0.02)),
                       SizedBox(
                         height: size.height * 0.02,
                       ),
@@ -107,8 +102,7 @@ class LoginView extends GetView<LoginController> {
                       ),
                       SizedBoxConst.size(context: context),
                       ConstrainedBox(
-                        constraints:
-                            BoxConstraints.tightFor(width: context.width),
+                        constraints: BoxConstraints.tightFor(width: context.width),
                         child: ElevatedButton(
                           style: ButtonStyle(
                             shape: WidgetStateProperty.all(
@@ -119,8 +113,8 @@ class LoginView extends GetView<LoginController> {
                             backgroundColor: WidgetStateProperty.all(
                               ColorsManager.primary,
                             ),
-                            padding: WidgetStateProperty.all(
-                                const EdgeInsets.all(14)),
+                            padding:
+                                WidgetStateProperty.all(const EdgeInsets.all(14)),
                           ),
                           child: Obx(() => controller.isLoading.value
                               ? const CupertinoActivityIndicator(
@@ -130,9 +124,8 @@ class LoginView extends GetView<LoginController> {
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,
-                                      fontSize:
-                                          MediaQuery.of(context).size.height *
-                                              0.02))),
+                                      fontSize: MediaQuery.of(context).size.height *
+                                          0.02))),
                           onPressed: () async {
                             await controller.login();
                           },

@@ -83,8 +83,6 @@ class ServiceData {
     throw Exception(json.decode(response.body)['message']);
   }
 
-
-
   static Future<bool> updateUser(int idUser, Map<String, dynamic> body) async {
     final response = await http.put(
         Uri.parse("${BaseLink.endPointUser}/$idUser"),

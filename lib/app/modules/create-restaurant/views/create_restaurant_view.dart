@@ -22,7 +22,7 @@ class CreateRestaurantView extends GetView<CreateRestaurantController> {
                 fontWeight: FontWeight.w500,
                 color: Colors.white),
           ),
-          centerTitle: true, 
+          centerTitle: true,
           actions: [
             controller.restaurantView.value.restaurantId != null
                 ? const Icon(
@@ -85,4 +85,4 @@ class CreateRestaurantView extends GetView<CreateRestaurantController> {
           ],
         ));
   }
-} 
+}

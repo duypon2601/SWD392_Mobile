@@ -47,7 +47,7 @@ class CreateUserView extends GetView<CreateUserController> {
               padding: EdgeInsets.all(UtilsReponsive.height(20, context)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
+                children: [
                   Center(
                     child: Image.asset(
                       'assets/user.png',
@@ -55,7 +55,6 @@ class CreateUserView extends GetView<CreateUserController> {
                       width: UtilsReponsive.height(80, context),
                     ),
                   ),
-                  
                   TextConstant.subTile3(context, text: 'Họ và tên'),
                   FormFieldWidget(
                     radiusBorder: 15,

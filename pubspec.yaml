@@ -40,6 +40,9 @@ dependencies:
   intl:
   http:
   syncfusion_flutter_charts: ^27.2.5
+  firebase_messaging: ^15.2.4
+  firebase_core:
+  flutter_local_notifications: ^19.0.0
 
 dev_dependencies:
   flutter_test:

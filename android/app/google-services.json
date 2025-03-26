@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "617375659366",
+    "project_id": "hot-spot-c3a2d",
+    "storage_bucket": "hot-spot-c3a2d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:617375659366:android:d7b372b709d36462b6c4a7",
+        "android_client_info": {
+          "package_name": "com.example.hotpot"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDhaTAgmdMQa8Fi39bJB7J6I0YMylr2r5I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
