@@ -10,10 +10,16 @@ import 'package:http/http.dart' as http;
 
 class ServiceData {
   static Future<UserAccount> login(
-      {required String userName, required String password}) async {
+      {required String userName,
+      required String password,
+      required String tokenDevice}) async {
     final response = await http.post(Uri.parse(BaseLink.login),
         headers: BaseCommon.instance.headerRequest(isUsingToken: false),
-        body: jsonEncode({"username": userName, "password": password}));
+        body: jsonEncode({
+          "username": userName,
+          "password": password,
+          "tokenDevice": tokenDevice
+        }));
     if (response.statusCode == 200) {
       final data = json.decode(response.body)["data"];
       return UserAccount.fromJson(data);
@@ -121,6 +127,20 @@ class ServiceData {
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body)['data'];
       return data.map<UserData>((item) => UserData.fromJson(item)).toList();
+    }
+    throw Exception(json.decode(response.body)['message']);
+  }
+
+  static Future<double> getRevenue(
+      {int? idRes, required String startDate, required String endate}) async {
+    String url =
+        '${BaseLink.revenue}${idRes != null ? '/$idRes' : ''}?startDate=$startDate&endDate=$endate';
+    log(url);
+    final response = await http.get(Uri.parse(url),
+        headers: BaseCommon.instance.headerRequest());
+    log('getRevenue ${response.statusCode}');
+    if (response.statusCode == 200) {
+      return json.decode(response.body)['data'];
     }
     throw Exception(json.decode(response.body)['message']);
   }

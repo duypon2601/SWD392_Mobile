@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hotpot/app/model/restaurant.dart';
+import 'package:hotpot/app/modules/home/views/card_res.dart';
 import 'package:hotpot/app/routes/app_pages.dart';
 import 'package:hotpot/resources/color_manager.dart';
 import 'package:hotpot/resources/reponsive_utils.dart';
@@ -58,8 +59,8 @@ class ListRestaurantView extends GetView<ListRestaurantController> {
                             Get.toNamed(Routes.RESTAURANT_DETAIL,
                                 arguments: controller.listRestaurant[index]);
                           },
-                          child: _itemRestaurant(
-                              context, controller.listRestaurant[index])),
+                          child:
+                              CardRes(item: controller.listRestaurant[index])),
                     ),
             ),
           ],

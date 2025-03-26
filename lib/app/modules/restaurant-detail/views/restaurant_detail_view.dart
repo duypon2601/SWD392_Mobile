@@ -1,3 +1,4 @@
+import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -7,6 +8,7 @@ import 'package:hotpot/resources/color_manager.dart';
 import 'package:hotpot/resources/reponsive_utils.dart';
 import 'package:hotpot/resources/text_style.dart';
 import 'package:hotpot/resources/util_common.dart';
+import 'package:intl/intl.dart';
 
 import '../controllers/restaurant_detail_controller.dart';
 
@@ -57,7 +59,7 @@ class RestaurantDetailView extends GetView<RestaurantDetailController> {
                               colorSd: Colors.grey,
                               colorBg: Colors.white),
                           width: double.infinity,
-                          height: UtilsReponsive.height(150, context),
+                          height: UtilsReponsive.height(165, context),
                           child: Row(
                             children: [
                               Image.asset(
@@ -78,7 +80,30 @@ class RestaurantDetailView extends GetView<RestaurantDetailController> {
                                   SizedBoxConst.size(context: context),
                                   TextConstant.subTile3(context,
                                       text:
-                                          'Số lượng nhân viên: ${controller.listEmployee.value.length}')
+                                          'Số lượng nhân viên: ${controller.listEmployee.value.length}'),
+                                  SizedBoxConst.size(context: context),
+                                  Row(
+                                    children: [
+                                      GestureDetector(
+                                          onTap: () {
+                                            _bottomOnceTime(context);
+                                          },
+                                          child:
+                                              const Icon(Icons.calendar_month)),
+                                      const SizedBox(width: 10),
+                                      TextConstant.subTile3(context,
+                                          text: 'Doanh thu:'),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Obx(() => controller.isLoading2.value
+                                      ? const CupertinoActivityIndicator()
+                                      : TextConstant.subTile2(context,
+                                          textAlign: TextAlign.center,
+                                          color: ColorsManager.primary,
+                                          fontWeight: FontWeight.bold,
+                                          text: UtilCommon.formatMoney(
+                                              controller.revene.value)))
                                 ],
                               ))
                             ],
@@ -164,6 +189,54 @@ class RestaurantDetailView extends GetView<RestaurantDetailController> {
                   ),
                 ],
               ),
+      ),
+    );
+  }
+
+  _bottomOnceTime(BuildContext context) {
+    Get.bottomSheet(
+      Container(
+        margin: EdgeInsets.all(UtilsReponsive.height(10, context)),
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius:
+                BorderRadius.circular(UtilsReponsive.height(20, context))),
+        height: UtilsReponsive.height(400, context),
+        width: double.infinity,
+        child: Column(
+          children: [
+            Expanded(
+              child: CalendarDatePicker2(
+                config: CalendarDatePicker2Config(
+                  currentDate: DateTime.now(),
+                  // firstDate: DateTime.now().add(const Duration(days: 1)),
+                  calendarType: CalendarDatePicker2Type.range,
+                  centerAlignModePicker: true,
+                  selectedDayTextStyle: const TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.w700),
+                  selectedDayHighlightColor: ColorsManager.primary,
+                ),
+                onValueChanged: (value) async {
+                  controller.startDate.value = value.first;
+                  controller.endDate.value = value.last;
+                },
+                value: [controller.startDate.value, controller.endDate.value],
+              ),
+            ),
+            ElevatedButton(
+                onPressed: () {
+                  controller.fetchOverRevenues(
+                    startDate: DateFormat('yyyy-MM-dd')
+                        .format(controller.startDate.value),
+                    endDate: DateFormat('yyyy-MM-dd').format(
+                      controller.endDate.value,
+                    ),
+                  );
+                  Get.back();
+                },
+                child: const Text('Kiểm tra'))
+          ],
+        ),
       ),
     );
   }

@@ -146,12 +146,6 @@ Future<void> main() async {
   FirebaseMessaging.onMessageOpenedApp
       .listen(showFlutterNotificationForgeround);
   FirebaseMessaging.onMessage.listen(showFlutterNotificationBackground);
-  final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
-  String? deviceToken;
-
-  firebaseMessaging.requestPermission();
-  deviceToken = await firebaseMessaging.getToken();
-  log('Device Token: $deviceToken');
 
   runApp(
     GetMaterialApp(

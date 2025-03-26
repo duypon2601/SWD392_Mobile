@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hotpot/app/data/base_common.dart';
@@ -15,12 +16,25 @@ class LoginController extends GetxController {
   final count = 0.obs;
   TextEditingController emailController = TextEditingController(text: '');
   TextEditingController passwordController = TextEditingController(text: '');
+  final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
 
   Rx<String> phoneError = ''.obs;
   Rx<String> passwordError = ''.obs;
+  String deviceToken = '';
 
   final isLoading = false.obs;
   final visiblePassword = false.obs;
+  @override
+  void onInit() {
+    String? deviceToken;
+
+    firebaseMessaging.requestPermission();
+    firebaseMessaging.getToken().then((v) {
+      deviceToken = v;
+      log('Device Token: $deviceToken');
+    });
+    super.onInit();
+  }
 
   void validationPhone() {
     // if (emailController.text.trim().isEmpty) {
@@ -47,7 +61,9 @@ class LoginController extends GetxController {
       if (!isLoading.value) {
         isLoading.value = true;
         UserAccount account = await ServiceData.login(
-            userName: emailController.text, password: passwordController.text);
+            userName: emailController.text,
+            password: passwordController.text,
+            tokenDevice: deviceToken);
         BaseCommon.instance.account = account;
         Get.offAllNamed(Routes.HOME);
       }

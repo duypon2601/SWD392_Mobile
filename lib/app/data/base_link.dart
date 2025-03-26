@@ -7,4 +7,5 @@ class BaseLink {
   static String getEmployeeOfRestaurant = '$domain/user/restaurant';
   static String createRestaurant = '$domain/restaurant/create';
   static String endPointUser = '$domain/user';
+  static String revenue = '$domain/order/revenue/daterange';
 }

@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hotpot/app/model/restaurant.dart';
+import 'package:hotpot/app/modules/home/views/card_res.dart';
 import 'package:hotpot/app/routes/app_pages.dart';
 import 'package:hotpot/resources/color_manager.dart';
 import 'package:hotpot/resources/reponsive_utils.dart';
@@ -32,31 +34,41 @@ class HomeView extends GetView<HomeController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    padding: EdgeInsets.all(UtilsReponsive.height(8, context)),
-                    decoration: UtilCommon.shadowBox(context,
-                        isActive: true,
-                        colorBg: ColorsManager.primary.withOpacity(0.9)),
-                    // height: UtilsReponsive.height(200, context),
-                    width: double.infinity,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TextConstant.subTile2(context,
-                            text: 'Thông tin doanh thu', color: Colors.white),
-                        SizedBoxConst.size(context: context),
-                        _rowText(context,
-                            text1: 'Tháng hiện tại',
-                            text2: UtilCommon.formatMoney(100000000)),
-                        SizedBoxConst.size(context: context),
-                        _rowText(context,
-                            text1: '3 tháng gần nhất',
-                            text2: UtilCommon.formatMoney(100000000)),
-                        SizedBoxConst.size(context: context),
-                        _rowText(context,
-                            text1: '6 tháng gần nhất',
-                            text2: UtilCommon.formatMoney(100000000)),
-                      ],
+                  Obx(
+                    () => Container(
+                      padding:
+                          EdgeInsets.all(UtilsReponsive.height(8, context)),
+                      decoration: UtilCommon.shadowBox(context,
+                          isActive: true,
+                          colorBg: ColorsManager.primary.withOpacity(0.9)),
+                      // height: UtilsReponsive.height(200, context),
+                      width: double.infinity,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextConstant.subTile2(context,
+                              text: 'Thông tin doanh thu', color: Colors.white),
+                          SizedBoxConst.size(context: context),
+                          (controller.isLoading1.value ||
+                                  controller.isLoading2.value ||
+                                  controller.isLoading3.value)
+                              ? const CupertinoActivityIndicator()
+                              : _rowText(context,
+                                  text1: 'Tháng hiện tại',
+                                  text2: UtilCommon.formatMoney(
+                                      controller.currentMonth.value)),
+                          SizedBoxConst.size(context: context),
+                          _rowText(context,
+                              text1: '3 tháng gần nhất',
+                              text2: UtilCommon.formatMoney(
+                                  controller.threeMonth.value)),
+                          SizedBoxConst.size(context: context),
+                          _rowText(context,
+                              text1: '6 tháng gần nhất',
+                              text2: UtilCommon.formatMoney(
+                                  controller.sixMonth.value)),
+                        ],
+                      ),
                     ),
                   ),
                   SizedBoxConst.size(context: context),
@@ -93,8 +105,9 @@ class HomeView extends GetView<HomeController> {
                                       arguments: controller
                                           .listRestaurant.value[index]);
                                 },
-                                child: _itemRestaurant(context,
-                                    controller.listRestaurant.value[index])),
+                                child: CardRes(
+                                    item: controller
+                                        .listRestaurant.value[index])),
                           ),
                   )
                 ],
@@ -133,8 +146,10 @@ class HomeView extends GetView<HomeController> {
                     color: Colors.white,
                     size: 14,
                   ),
-                  TextConstant.content(context,
-                      color: Colors.white, text: '${item.location}'),
+                  Expanded(
+                    child: TextConstant.content(context,
+                        color: Colors.white, text: '${item.location}'),
+                  ),
                 ],
               ),
               SizedBoxConst.size(context: context, size: 5),

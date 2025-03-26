@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hotpot/resources/reponsive_utils.dart';
 
-
 class TextConstant {
   static Text titleH1(BuildContext context,
       {required String text,
@@ -121,6 +120,7 @@ class TextConstant {
     return Text(
       text,
       textAlign: TextAlign.justify,
+      overflow: TextOverflow.ellipsis,
       style: GoogleFonts.montserrat(
           height: 1.5,
           fontSize: UtilsReponsive.height(size, context),
