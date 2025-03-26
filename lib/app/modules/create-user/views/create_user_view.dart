@@ -18,8 +18,8 @@ class CreateUserView extends GetView<CreateUserController> {
           title: Obx(
             () => TextConstant.titleH2(context,
                 text: controller.employeeView.value.userId != null
-                    ? 'Chi tiết'
-                    : "Tạo mới",
+                    ? 'Chi tiết nhân viên'
+                    : "Tạo mới nhân viên",
                 fontWeight: FontWeight.w500,
                 color: Colors.white),
           ),
@@ -28,11 +28,59 @@ class CreateUserView extends GetView<CreateUserController> {
             controller.employeeView.value.userId != null
                 ? GestureDetector(
                     onTap: () {
-                      controller.deleteUser();
+                      // Show confirmation dialog before deleting
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            title: TextConstant.subTile1(context, 
+                              text: 'Xác nhận xóa',
+                              color: ColorsManager.primary
+                            ),
+                            content: TextConstant.content(context, 
+                              text: 'Bạn có chắc chắn muốn xóa nhân viên này?'
+                            ),
+                            actions: [
+                              TextButton(
+                                child: TextConstant.content(context, 
+                                  text: 'Hủy', 
+                                  color: Colors.grey
+                                ),
+                                onPressed: () => Navigator.of(context).pop(),
+                              ),
+                              TextButton(
+                                child: TextConstant.content(context, 
+                                  text: 'Xóa', 
+                                  color: Colors.red
+                                ),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                  controller.deleteUser();
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
                     },
-                    child: const Icon(
-                      Icons.remove_circle_outlined,
-                      color: Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 16.0),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.delete_outline,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 4),
+                          TextConstant.content(context, 
+                            text: 'Xóa', 
+                            color: Colors.white
+                          ),
+                        ],
+                      ),
                     ),
                   )
                 : const SizedBox()
@@ -42,95 +90,211 @@ class CreateUserView extends GetView<CreateUserController> {
           children: [
             Align(
                 alignment: Alignment.bottomCenter,
-                child: Image.asset('assets/moon.png')),
+                child: Opacity(
+                  opacity: 0.8,
+                  child: Image.asset('assets/moon.png')
+                )),
             SingleChildScrollView(
               padding: EdgeInsets.all(UtilsReponsive.height(20, context)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Image.asset(
-                      'assets/user.png',
-                      height: UtilsReponsive.height(80, context),
-                      width: UtilsReponsive.height(80, context),
-                    ),
-                  ),
-                  TextConstant.subTile3(context, text: 'Họ và tên'),
-                  FormFieldWidget(
-                    radiusBorder: 15,
-                    focusColor: ColorsManager.primary,
-                    borderColor: Colors.grey,
-                    padding: 20,
-                    setValueFunc: (v) {},
-                    controllerEditting: controller.nameController,
-                  ),
-                  SizedBoxConst.size(context: context),
-                  TextConstant.subTile3(context, text: 'Email'),
-                  FormFieldWidget(
-                    radiusBorder: 15,
-                    padding: 20,
-                    borderColor: Colors.grey,
-                    focusColor: ColorsManager.primary,
-                    setValueFunc: (v) {},
-                    controllerEditting: controller.emailController,
-                  ),
-                  SizedBoxConst.size(context: context),
-                  TextConstant.subTile3(context, text: 'User name'),
-                  FormFieldWidget(
-                    radiusBorder: 15,
-                    padding: 20,
-                    borderColor: Colors.grey,
-                    focusColor: ColorsManager.primary,
-                    setValueFunc: (v) {},
-                    fillColor: controller.employeeView.value.userId == null
-                        ? Colors.white
-                        : Colors.grey.shade300,
-                    isEnabled: controller.employeeView.value.userId == null,
-                    controllerEditting: controller.usernameController,
-                  ),
-                  SizedBoxConst.size(context: context),
-                  Visibility(
-                      visible: controller.employeeView.value.userId == null,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+              child: Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(UtilsReponsive.height(16, context)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Column(
+                          children: [
+                            CircleAvatar(
+                              radius: UtilsReponsive.height(40, context),
+                              backgroundColor: ColorsManager.primary.withOpacity(0.1),
+                              child: Image.asset(
+                                'assets/user.png',
+                                height: UtilsReponsive.height(50, context),
+                                width: UtilsReponsive.height(50, context),
+                              ),
+                            ),
+                            SizedBoxConst.size(context: context),
+                            Obx(
+                              () => TextConstant.titleH3(context,
+                                text: controller.employeeView.value.userId != null
+                                    ? 'Thông tin chi tiết'
+                                    : "Thêm nhân viên mới",
+                                color: ColorsManager.primary),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBoxConst.size(context: context, size: 20),
+                      _buildFormField(
+                        context: context,
+                        label: 'Họ và tên',
+                        controller: controller.nameController,
+                        icon: Icons.person,
+                      ),
+                      SizedBoxConst.size(context: context),
+                      _buildFormField(
+                        context: context,
+                        label: 'Email',
+                        controller: controller.emailController,
+                        icon: Icons.email,
+                      ),
+                      SizedBoxConst.size(context: context),
+                      _buildFormField(
+                        context: context,
+                        label: 'Tên đăng nhập',
+                        controller: controller.usernameController,
+                        icon: Icons.account_circle,
+                        isEnabled: controller.employeeView.value.userId == null,
+                        fillColor: controller.employeeView.value.userId == null
+                            ? Colors.white
+                            : Colors.grey.shade300,
+                      ),
+                      SizedBoxConst.size(context: context),
+                      Visibility(
+                          visible: controller.employeeView.value.userId == null,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildFormField(
+                                context: context,
+                                label: 'Mật khẩu',
+                                controller: controller.passController,
+                                icon: Icons.lock,
+                                isObscure: true,
+                              ),
+                              SizedBoxConst.size(context: context),
+                            ],
+                          )),
+                      Row(
                         children: [
-                          TextConstant.subTile3(context, text: 'Password'),
-                          FormFieldWidget(
-                            radiusBorder: 15,
-                            padding: 20,
-                            isObscureText: true,
-                            borderColor: Colors.grey,
-                            focusColor: ColorsManager.primary,
-                            setValueFunc: (v) {},
-                            controllerEditting: controller.passController,
+                          Icon(
+                            Icons.work_outline, 
+                            color: ColorsManager.primary,
+                            size: 18,
                           ),
-                          SizedBoxConst.size(context: context),
+                          SizedBoxConst.sizeWith(context: context, size: 8),
+                          TextConstant.subTile3(context, text: 'Chức vụ'),
                         ],
-                      )),
-                  TextConstant.subTile3(context, text: 'Chức vụ'),
-                  Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      decoration: UtilCommon.shadowBox(context,
-                          colorBg: ColorsManager.primary),
-                      child: DropdownExample(
-                          status:
-                              controller.employeeView.value.role ?? 'STAFF')),
-                  SizedBoxConst.size(context: context),
-                  Center(
-                    child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: ColorsManager.primary),
-                        onPressed: () {
-                          controller.onTapAction();
-                        },
-                        child: TextConstant.subTile1(context,
-                            text: 'Cập nhật', color: Colors.white)),
-                  )
-                ],
+                      ),
+                      SizedBoxConst.size(context: context, size: 8),
+                      Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          decoration: BoxDecoration(
+                            color: ColorsManager.primary,
+                            borderRadius: BorderRadius.circular(15),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.2),
+                                spreadRadius: 1,
+                                blurRadius: 3,
+                                offset: const Offset(0, 1),
+                              )
+                            ],
+                          ),
+                          child: DropdownExample(
+                              status:
+                                  controller.employeeView.value.role ?? 'STAFF')),
+                      SizedBoxConst.size(context: context, size: 24),
+                      Center(
+                        child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: ColorsManager.primary,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: UtilsReponsive.width(30, context),
+                                vertical: UtilsReponsive.height(12, context),
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                            onPressed: () {
+                              controller.onTapAction();
+                            },
+                            child: Obx(() => controller.isLoading.value 
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 3,
+                                )
+                              : Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      controller.employeeView.value.userId != null 
+                                          ? Icons.save_outlined 
+                                          : Icons.add_circle_outline,
+                                      color: Colors.white,
+                                      size: 18,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    TextConstant.subTile1(context,
+                                      text: controller.employeeView.value.userId != null 
+                                          ? 'Cập nhật' 
+                                          : 'Tạo mới',
+                                      color: Colors.white,
+                                    ),
+                                  ],
+                                ),
+                            )),
+                      )
+                    ],
+                  ),
+                ),
               ),
             ),
           ],
         ));
+  }
+
+  Widget _buildFormField({
+    required BuildContext context,
+    required String label,
+    required TextEditingController controller,
+    required IconData icon,
+    bool isEnabled = true,
+    Color? fillColor,
+    bool isObscure = false,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              icon, 
+              color: ColorsManager.primary,
+              size: 18,
+            ),
+            SizedBoxConst.sizeWith(context: context, size: 8),
+            TextConstant.subTile3(context, text: label),
+          ],
+        ),
+        SizedBoxConst.size(context: context, size: 8),
+        FormFieldWidget(
+          radiusBorder: 15,
+          padding: 20,
+          borderColor: Colors.grey,
+          focusColor: ColorsManager.primary,
+          setValueFunc: (v) {},
+          isEnabled: isEnabled,
+          fillColor: fillColor,
+          controllerEditting: controller,
+          isObscureText: isObscure,
+          suffixIcon: isObscure 
+              ? GestureDetector(
+                  onTap: () {
+                    // For password toggle visibility if needed
+                  },
+                  child: const Icon(Icons.visibility_off, color: Colors.grey),
+                )
+              : null,
+        ),
+      ],
+    );
   }
 }
 
@@ -151,11 +315,10 @@ class _DropdownExampleState extends State<DropdownExample> {
   @override
   Widget build(BuildContext context) {
     return DropdownButton<String>(
-      iconEnabledColor: ColorsManager.primary,
+      iconEnabledColor: Colors.white,
       dropdownColor: ColorsManager.primary,
-      value: widget.status, // Giá trị hiệnDropdownExample tại
+      value: widget.status,
       hint: const Text('Chọn'),
-
       items: items.map((String value) {
         return DropdownMenuItem<String>(
           value: value,
@@ -171,9 +334,9 @@ class _DropdownExampleState extends State<DropdownExample> {
           }
         });
       },
-      isExpanded: true, // Để dropdown mở rộng toàn bộ chiều ngang
-      underline: Container(height: 2, color: Colors.blue), // Đường gạch dưới
-      icon: const Icon(Icons.arrow_drop_down), // Icon thả xuống
+      isExpanded: true,
+      underline: Container(height: 0),
+      icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
     );
   }
 }
