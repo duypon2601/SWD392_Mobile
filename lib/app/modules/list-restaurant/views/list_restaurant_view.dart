@@ -47,26 +47,43 @@ class ListRestaurantView extends GetView<ListRestaurantController> {
                         color: ColorsManager.primary,
                       ),
                     )
-                  : ListView.separated(
-                      padding:
-                          EdgeInsets.all(UtilsReponsive.height(15, context)),
-                      shrinkWrap: true,
-                      itemCount: controller.listRestaurant.value.length,
-                      separatorBuilder: (context, index) =>
-                          SizedBoxConst.size(context: context),
-                      itemBuilder: (context, index) => GestureDetector(
-                          onTap: () {
-                            Get.toNamed(Routes.RESTAURANT_DETAIL,
-                                arguments: controller.listRestaurant[index]);
-                          },
-                          child:
-                              CardRes(item: controller.listRestaurant[index])),
+                  : RefreshIndicator(
+                      onRefresh: () async {
+                        await controller.fetchData();
+                      },
+                      color: ColorsManager.primary,
+                      child: ListView.builder(
+                        padding:
+                            EdgeInsets.all(UtilsReponsive.height(15, context)),
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        itemCount: controller.listRestaurant.value.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: EdgeInsets.only(
+                              bottom: index ==
+                                      controller.listRestaurant.value.length - 1
+                                  ? 0
+                                  : UtilsReponsive.height(10, context),
+                            ),
+                            child: GestureDetector(
+                              onTap: () {
+                                Get.toNamed(Routes.RESTAURANT_DETAIL,
+                                    arguments:
+                                        controller.listRestaurant[index]);
+                              },
+                              child: CardRes(
+                                  item: controller.listRestaurant[index]),
+                            ),
+                          );
+                        },
+                      ),
                     ),
             ),
           ],
         ));
   }
 
+  // This method is not being used anymore, but keeping it for reference
   Container _itemRestaurant(BuildContext context, Restaurant item) {
     return Container(
       padding: EdgeInsets.all(UtilsReponsive.height(10, context)),

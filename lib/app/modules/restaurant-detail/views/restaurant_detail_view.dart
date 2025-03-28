@@ -53,17 +53,21 @@ class RestaurantDetailView extends GetView<RestaurantDetailController> {
                     child: Column(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(5),
+                          padding: const EdgeInsets.all(10),
+                          margin: const EdgeInsets.all(8),
                           decoration: UtilCommon.shadowBox(context,
                               isActive: true,
                               colorSd: Colors.grey,
                               colorBg: Colors.white),
                           width: double.infinity,
-                          height: UtilsReponsive.height(165, context),
+                          // Removed fixed height to make it adapt to content
                           child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Image.asset(
                                 'assets/restaurant.png',
+                                height: UtilsReponsive.height(80, context),
+                                width: UtilsReponsive.height(80, context),
                               ),
                               SizedBoxConst.sizeWith(context: context),
                               Expanded(
@@ -93,17 +97,17 @@ class RestaurantDetailView extends GetView<RestaurantDetailController> {
                                       const SizedBox(width: 10),
                                       TextConstant.subTile3(context,
                                           text: 'Doanh thu:'),
+                                      const SizedBox(width: 10),
+                                      Obx(() => controller.isLoading2.value
+                                          ? const CupertinoActivityIndicator()
+                                          : TextConstant.subTile2(context,
+                                              textAlign: TextAlign.center,
+                                              color: ColorsManager.primary,
+                                              fontWeight: FontWeight.bold,
+                                              text: UtilCommon.formatMoney(
+                                                  controller.revene.value))),
                                     ],
                                   ),
-                                  const SizedBox(height: 10),
-                                  Obx(() => controller.isLoading2.value
-                                      ? const CupertinoActivityIndicator()
-                                      : TextConstant.subTile2(context,
-                                          textAlign: TextAlign.center,
-                                          color: ColorsManager.primary,
-                                          fontWeight: FontWeight.bold,
-                                          text: UtilCommon.formatMoney(
-                                              controller.revene.value)))
                                 ],
                               ))
                             ],
@@ -133,54 +137,65 @@ class RestaurantDetailView extends GetView<RestaurantDetailController> {
                             ],
                           ),
                         ),
-                        ListView.separated(
+                        // Use a ListView.builder instead of ListView.separated for better performance
+                        ListView.builder(
                             padding: EdgeInsets.all(
                                 UtilsReponsive.height(15, context)),
                             shrinkWrap: true,
+                            // This is important! Makes the ListView respect the parent's height constraints
+                            physics: const NeverScrollableScrollPhysics(),
                             itemCount: controller.listEmployee.value.length,
-                            separatorBuilder: (context, index) =>
-                                SizedBoxConst.size(context: context),
-                            itemBuilder: (context, index) => GestureDetector(
-                                  onTap: () {
-                                    Get.toNamed(Routes.CREATE_USER,
-                                        arguments:
-                                            controller.listEmployee[index]);
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.all(
-                                        UtilsReponsive.height(10, context)),
-                                    decoration: UtilCommon.shadowBox(context,
-                                        isActive: true,
-                                        colorSd: Colors.grey,
-                                        colorBg: Colors.white),
-                                    child: Row(
-                                      children: [
-                                        Image.asset(
-                                          'assets/user.png',
-                                          height: UtilsReponsive.height(
-                                              35, context),
-                                          width: UtilsReponsive.height(
-                                              35, context),
-                                        ),
-                                        SizedBoxConst.sizeWith(
-                                            context: context),
-                                        Expanded(
-                                            child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            TextConstant.subTile3(context,
-                                                text:
-                                                    '${controller.listEmployee.value[index].name}'),
-                                            TextConstant.subTile3(context,
-                                                text:
-                                                    'Chức vụ:  ${controller.listEmployee.value[index].role}'),
-                                            TextConstant.content(context,
-                                                text:
-                                                    'Ngày tham gia: 12/12/2022')
-                                          ],
-                                        )),
-                                      ],
+                            itemBuilder: (context, index) => Padding(
+                                  padding: EdgeInsets.only(
+                                    bottom: index ==
+                                            controller
+                                                    .listEmployee.value.length -
+                                                1
+                                        ? 0
+                                        : UtilsReponsive.height(10, context),
+                                  ),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Get.toNamed(Routes.CREATE_USER,
+                                          arguments:
+                                              controller.listEmployee[index]);
+                                    },
+                                    child: Container(
+                                      padding: EdgeInsets.all(
+                                          UtilsReponsive.height(10, context)),
+                                      decoration: UtilCommon.shadowBox(context,
+                                          isActive: true,
+                                          colorSd: Colors.grey,
+                                          colorBg: Colors.white),
+                                      child: Row(
+                                        children: [
+                                          Image.asset(
+                                            'assets/user.png',
+                                            height: UtilsReponsive.height(
+                                                35, context),
+                                            width: UtilsReponsive.height(
+                                                35, context),
+                                          ),
+                                          SizedBoxConst.sizeWith(
+                                              context: context),
+                                          Expanded(
+                                              child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              TextConstant.subTile3(context,
+                                                  text:
+                                                      '${controller.listEmployee.value[index].name}'),
+                                              TextConstant.subTile3(context,
+                                                  text:
+                                                      'Chức vụ:  ${controller.listEmployee.value[index].role}'),
+                                              TextConstant.content(context,
+                                                  text:
+                                                      'Ngày tham gia: 12/12/2022')
+                                            ],
+                                          )),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ))
