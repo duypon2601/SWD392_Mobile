@@ -146,6 +146,7 @@ class _DropdownExampleState extends State<DropdownExample> {
   final List<String> items = [
     'STAFF',
     'MANAGER',
+    'ADMIN',
   ];
 
   @override
