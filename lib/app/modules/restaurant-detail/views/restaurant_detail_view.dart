@@ -44,80 +44,90 @@ class RestaurantDetailView extends GetView<RestaurantDetailController> {
                   color: ColorsManager.primary,
                 ),
               )
-            : Stack(
-                children: [
-                  Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Image.asset('assets/moon.png')),
-                  SingleChildScrollView(
-                    child: Column(
+            : SafeArea(
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Image.asset('assets/moon.png'),
+                      ),
+                    ),
+                    Column(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          margin: const EdgeInsets.all(8),
-                          decoration: UtilCommon.shadowBox(context,
-                              isActive: true,
-                              colorSd: Colors.grey,
-                              colorBg: Colors.white),
-                          width: double.infinity,
-                          // Removed fixed height to make it adapt to content
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Image.asset(
-                                'assets/restaurant.png',
-                                height: UtilsReponsive.height(80, context),
-                                width: UtilsReponsive.height(80, context),
-                              ),
-                              SizedBoxConst.sizeWith(context: context),
-                              Expanded(
+                        // Restaurant info card - fixed size
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: UtilCommon.shadowBox(context,
+                                isActive: true,
+                                colorSd: Colors.grey,
+                                colorBg: Colors.white),
+                            width: double.infinity,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Image.asset(
+                                  'assets/restaurant.png',
+                                  height: UtilsReponsive.height(80, context),
+                                  width: UtilsReponsive.height(80, context),
+                                ),
+                                SizedBoxConst.sizeWith(context: context),
+                                Expanded(
                                   child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  TextConstant.subTile3(context,
-                                      text:
-                                          '${controller.restaurantView.value.name}',
-                                      color: ColorsManager.primary),
-                                  SizedBoxConst.size(context: context),
-                                  TextConstant.subTile3(context,
-                                      text: 'Quản lý: Nguyễn Văn A'),
-                                  SizedBoxConst.size(context: context),
-                                  TextConstant.subTile3(context,
-                                      text:
-                                          'Số lượng nhân viên: ${controller.listEmployee.value.length}'),
-                                  SizedBoxConst.size(context: context),
-                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      GestureDetector(
-                                          onTap: () {
-                                            _bottomOnceTime(context);
-                                          },
-                                          child:
-                                              const Icon(Icons.calendar_month)),
-                                      const SizedBox(width: 10),
                                       TextConstant.subTile3(context,
-                                          text: 'Doanh thu:'),
-                                      const SizedBox(width: 10),
-                                      Obx(() => controller.isLoading2.value
-                                          ? const CupertinoActivityIndicator()
-                                          : TextConstant.subTile2(context,
-                                              textAlign: TextAlign.center,
-                                              color: ColorsManager.primary,
-                                              fontWeight: FontWeight.bold,
-                                              text: UtilCommon.formatMoney(
-                                                  controller.revene.value))),
+                                          text:
+                                              '${controller.restaurantView.value.name}',
+                                          color: ColorsManager.primary),
+                                      SizedBoxConst.size(context: context),
+                                      TextConstant.subTile3(context,
+                                          text: 'Quản lý: Nguyễn Văn A'),
+                                      SizedBoxConst.size(context: context),
+                                      TextConstant.subTile3(context,
+                                          text:
+                                              'Số lượng nhân viên: ${controller.listEmployee.value.length}'),
+                                      SizedBoxConst.size(context: context),
+                                      Row(
+                                        children: [
+                                          GestureDetector(
+                                            onTap: () {
+                                              _bottomOnceTime(context);
+                                            },
+                                            child: const Icon(
+                                                Icons.calendar_month),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          TextConstant.subTile3(context,
+                                              text: 'Doanh thu:'),
+                                          const SizedBox(width: 10),
+                                          Obx(() => controller.isLoading2.value
+                                              ? const CupertinoActivityIndicator()
+                                              : TextConstant.subTile2(context,
+                                                  color: ColorsManager.primary,
+                                                  fontWeight: FontWeight.bold,
+                                                  text: UtilCommon.formatMoney(
+                                                      controller
+                                                          .revene.value))),
+                                        ],
+                                      ),
                                     ],
                                   ),
-                                ],
-                              ))
-                            ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        SizedBoxConst.size(context: context),
-                        SizedBoxConst.size(context: context),
+
+                        // Employee list header
                         Padding(
                           padding: EdgeInsets.symmetric(
-                              horizontal: UtilsReponsive.height(15, context)),
+                            horizontal: UtilsReponsive.height(15, context),
+                            vertical: UtilsReponsive.height(8, context),
+                          ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -137,72 +147,72 @@ class RestaurantDetailView extends GetView<RestaurantDetailController> {
                             ],
                           ),
                         ),
-                        // Use a ListView.builder instead of ListView.separated for better performance
-                        ListView.builder(
+
+                        // Employee list - scrollable
+                        Expanded(
+                          child: ListView.builder(
                             padding: EdgeInsets.all(
                                 UtilsReponsive.height(15, context)),
-                            shrinkWrap: true,
-                            // This is important! Makes the ListView respect the parent's height constraints
-                            physics: const NeverScrollableScrollPhysics(),
+                            physics: const AlwaysScrollableScrollPhysics(),
                             itemCount: controller.listEmployee.value.length,
                             itemBuilder: (context, index) => Padding(
-                                  padding: EdgeInsets.only(
-                                    bottom: index ==
-                                            controller
-                                                    .listEmployee.value.length -
-                                                1
-                                        ? 0
-                                        : UtilsReponsive.height(10, context),
-                                  ),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      Get.toNamed(Routes.CREATE_USER,
-                                          arguments:
-                                              controller.listEmployee[index]);
-                                    },
-                                    child: Container(
-                                      padding: EdgeInsets.all(
-                                          UtilsReponsive.height(10, context)),
-                                      decoration: UtilCommon.shadowBox(context,
-                                          isActive: true,
-                                          colorSd: Colors.grey,
-                                          colorBg: Colors.white),
-                                      child: Row(
-                                        children: [
-                                          Image.asset(
-                                            'assets/user.png',
-                                            height: UtilsReponsive.height(
-                                                35, context),
-                                            width: UtilsReponsive.height(
-                                                35, context),
-                                          ),
-                                          SizedBoxConst.sizeWith(
-                                              context: context),
-                                          Expanded(
-                                              child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              TextConstant.subTile3(context,
-                                                  text:
-                                                      '${controller.listEmployee.value[index].name}'),
-                                              TextConstant.subTile3(context,
-                                                  text:
-                                                      'Chức vụ:  ${controller.listEmployee.value[index].role}'),
-                                              TextConstant.content(context,
-                                                  text:
-                                                      'Ngày tham gia: 12/12/2022')
-                                            ],
-                                          )),
-                                        ],
+                              padding: EdgeInsets.only(
+                                bottom: index ==
+                                        controller.listEmployee.value.length - 1
+                                    ? 80 // Extra padding at the bottom to account for moon image
+                                    : UtilsReponsive.height(10, context),
+                              ),
+                              child: GestureDetector(
+                                onTap: () {
+                                  Get.toNamed(Routes.CREATE_USER,
+                                      arguments:
+                                          controller.listEmployee[index]);
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.all(
+                                      UtilsReponsive.height(10, context)),
+                                  decoration: UtilCommon.shadowBox(context,
+                                      isActive: true,
+                                      colorSd: Colors.grey,
+                                      colorBg: Colors.white),
+                                  child: Row(
+                                    children: [
+                                      Image.asset(
+                                        'assets/user.png',
+                                        height:
+                                            UtilsReponsive.height(35, context),
+                                        width:
+                                            UtilsReponsive.height(35, context),
                                       ),
-                                    ),
+                                      SizedBoxConst.sizeWith(context: context),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            TextConstant.subTile3(context,
+                                                text:
+                                                    '${controller.listEmployee.value[index].name}'),
+                                            TextConstant.subTile3(context,
+                                                text:
+                                                    'Chức vụ: ${controller.listEmployee.value[index].role}'),
+                                            TextConstant.content(context,
+                                                text:
+                                                    'Ngày tham gia: 12/12/2022')
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ))
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
       ),
     );
