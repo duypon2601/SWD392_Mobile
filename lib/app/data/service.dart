@@ -13,6 +13,7 @@ class ServiceData {
       {required String userName,
       required String password,
       required String tokenDevice}) async {
+    log('Gửi yêu cầu đăng nhập với token: $tokenDevice');
     final response = await http.post(Uri.parse(BaseLink.login),
         headers: BaseCommon.instance.headerRequest(isUsingToken: false),
         body: jsonEncode({
@@ -20,6 +21,9 @@ class ServiceData {
           "password": password,
           "tokenDevice": tokenDevice
         }));
+    log('Trạng thái phản hồi đăng nhập: ${response.statusCode}');
+    log('Nội dung phản hồi đăng nhập: ${response.body}');
+
     if (response.statusCode == 200) {
       final data = json.decode(response.body)["data"];
       return UserAccount.fromJson(data);
@@ -143,5 +147,28 @@ class ServiceData {
       return json.decode(response.body)['data'];
     }
     throw Exception(json.decode(response.body)['message']);
+  }
+
+  // Thêm phương thức này nếu bạn cần cập nhật token device sau khi đăng nhập
+  static Future<bool> updateDeviceToken(String userId, String newToken) async {
+    try {
+      log('Đang cập nhật token device cho user $userId: $newToken');
+      final response = await http.put(
+        Uri.parse("${BaseLink.endPointUser}/update-token/$userId"),
+        headers: BaseCommon.instance.headerRequest(),
+        body: jsonEncode({"tokenDevice": newToken}),
+      );
+
+      log('Cập nhật token device: ${response.statusCode}');
+      log('Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        return true;
+      }
+      throw Exception(json.decode(response.body)['message']);
+    } catch (e) {
+      log('Lỗi khi cập nhật token device: $e');
+      throw Exception(e);
+    }
   }
 }

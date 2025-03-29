@@ -24,16 +24,30 @@ class LoginController extends GetxController {
 
   final isLoading = false.obs;
   final visiblePassword = false.obs;
+  
   @override
   void onInit() {
-    String? deviceToken;
-
-    firebaseMessaging.requestPermission();
-    firebaseMessaging.getToken().then((v) {
-      deviceToken = v;
-      log('Device Token: $deviceToken');
-    });
     super.onInit();
+    _initializeFirebaseMessaging();
+  }
+
+  Future<void> _initializeFirebaseMessaging() async {
+    try {
+      await firebaseMessaging.requestPermission(
+        alert: true,
+        announcement: false,
+        badge: true,
+        carPlay: false,
+        criticalAlert: false,
+        provisional: false,
+        sound: true,
+      );
+      
+      deviceToken = await firebaseMessaging.getToken() ?? '';
+      log('Device Token initialized: $deviceToken');
+    } catch (e) {
+      log('Error initializing Firebase Messaging: $e');
+    }
   }
 
   void validationPhone() {
@@ -60,16 +74,28 @@ class LoginController extends GetxController {
     try {
       if (!isLoading.value) {
         isLoading.value = true;
+        
+        // Đảm bảo chúng ta có token trước khi đăng nhập
+        if (deviceToken.isEmpty) {
+          deviceToken = await firebaseMessaging.getToken() ?? '';
+          log('Lấy token trước khi đăng nhập: $deviceToken');
+        }
+        
+        log('Đang đăng nhập với token: $deviceToken');
         UserAccount account = await ServiceData.login(
             userName: emailController.text,
             password: passwordController.text,
             tokenDevice: deviceToken);
+        
+        log('Đăng nhập thành công cho user: ${account.userId}');
         BaseCommon.instance.account = account;
         Get.offAllNamed(Routes.HOME);
       }
     } catch (e) {
-      log(e.toString());
+      log('Lỗi đăng nhập: $e');
       isLoading.value = false;
+      Get.snackbar('Lỗi', 'Đăng nhập thất bại: ${e.toString()}',
+          backgroundColor: Colors.red, colorText: Colors.white);
     }
   }
 }
